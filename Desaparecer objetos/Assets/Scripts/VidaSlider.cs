@@ -5,31 +5,57 @@ using UnityEngine.UI;
 using TMPro;
 
 public class VidaSlider: MonoBehaviour {
+
     [SerializeField]
     TextMeshProUGUI mensajeVida;
 
     public GameObject prefabCapsule;
+    
+    [SerializeField]
+    GameObject canvasVidaObjeto;
 
     [SerializeField]
     Slider sliderValue;
-
     float vida;
+    public float spawnTime;
+    Vector3 spawnPoint;
+
     void Start () {
-        vida = Random.Range (10f, 30f);
-        sliderValue.maxValue = vida;
-        sliderValue.value = sliderValue.maxValue;
+        Randomizer ();
     }
 
-    // Update is called once per frame
     void Update () {
         vida -= Time.deltaTime;
         sliderValue.value -= Time.deltaTime;
         mensajeVida.text = "Time left: " + sliderValue.value.ToString (".00");
 
         if (sliderValue.value <= 0f) {
-            Instantiate (prefabCapsule, new Vector3 (Random.Range (-100f, 100f), 2f, Random.Range (-300f, 300f)));
-            Destroy (gameObject);
-        }
+            gameObject.GetComponent<MeshRenderer>().enabled = false;
+            spawnTime -= Time.deltaTime;
+            canvasVidaObjeto.SetActive (false);
+            
+            if (spawnTime <= 0) {
+                gameObject.GetComponent<MeshRenderer> ().enabled = true;
+                canvasVidaObjeto.SetActive (true);
+                Spawner ();
+                Destroy (gameObject);
 
+            }
+        }
+    }
+
+    public void Spawner () {
+        Randomizer ();
+        Instantiate (prefabCapsule, spawnPoint, Quaternion.identity);
+        canvasVidaObjeto.SetActive (true);
+        Destroy (gameObject);
+    }
+
+    public void Randomizer () {
+        spawnPoint = new Vector3 (Random.Range (-15f, 15f), 1.51f, Random.Range (-15f, 22f));
+        vida = Random.Range (10f, 30f);
+        spawnTime = Random.Range (3f, 6f);
+        sliderValue.maxValue = vida;
+        sliderValue.value = sliderValue.maxValue;
     }
 }
